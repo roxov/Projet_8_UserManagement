@@ -18,23 +18,27 @@ import org.springframework.stereotype.Service;
 import fr.asterox.UserManagement.bean.User;
 import fr.asterox.UserManagement.bean.UserPreferences;
 import fr.asterox.UserManagement.bean.UserReward;
+import fr.asterox.UserManagement.controller.RewardsCentralController;
+import fr.asterox.UserManagement.controller.dto.CurrentLocationDTO;
 import fr.asterox.UserManagement.helper.InternalTestHelper;
 import fr.asterox.UserManagement.tracker.Tracker;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import tripPricer.Provider;
+import tripPricer.TripPricer;
 
 @Service
-public class TourGuideService {
-	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
+public class UserManagementService {
+	private Logger logger = LoggerFactory.getLogger(UserManagementService.class);
 	private final GpsUtil gpsUtil;
-	private final RewardsService rewardsService;
+	private RewardsCentralController rewardsCentralController;
+	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
 
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
+	public UserManagementService(GpsUtil gpsUtil) {
 		this.gpsUtil = gpsUtil;
-		this.rewardsService = rewardsService;
 
 		if (testMode) {
 			logger.info("TestMode enabled");
@@ -46,12 +50,12 @@ public class TourGuideService {
 		addShutDownHook();
 	}
 
-	public List<UserReward> getUserRewards(User user) {
-		return user.getUserRewards();
-	}
-
 	public User getUser(String userName) {
 		return internalUserMap.get(userName);
+	}
+
+	public UUID getUserId(String userName) {
+		return internalUserMap.get(userName).getUserId();
 	}
 
 	public UserPreferences getUserPreferences(String userName) {
@@ -66,6 +70,14 @@ public class TourGuideService {
 		if (!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);
 		}
+	}
+
+	public List<UserReward> getUserRewards(User user) {
+		return user.getUserRewards();
+	}
+
+	public void addUserReward(String userName, UserReward userReward) {
+		getUser(userName).addUserReward(userReward);
 	}
 
 	public VisitedLocation getUserLastLocation(User user) {
@@ -83,8 +95,18 @@ public class TourGuideService {
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
-		rewardsService.calculateRewards(user);
+		rewardsCentralController.calculateRewards(user.getUserName());
 		return visitedLocation;
+	}
+
+	public List<CurrentLocationDTO> getAllCurrentLocations() {
+		return this.getAllUsers().stream()
+				.map(u -> new CurrentLocationDTO(u.getUserId(), u.getLastVisitedLocation().location))
+				.collect(Collectors.toList());
+	}
+
+	public void setTripDeals(String userName, List<Provider> providers) {
+		getUser(userName).setTripDeals(providers);
 	}
 
 	private void addShutDownHook() {

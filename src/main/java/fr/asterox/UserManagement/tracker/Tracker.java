@@ -10,16 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.asterox.UserManagement.bean.User;
-import fr.asterox.UserManagement.service.TourGuideService;
+import fr.asterox.UserManagement.service.UserManagementService;
 
 public class Tracker extends Thread {
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private final TourGuideService tourGuideService;
+	private final UserManagementService tourGuideService;
 	private boolean stop = false;
 
-	public Tracker(TourGuideService tourGuideService) {
+	public Tracker(UserManagementService tourGuideService) {
 		this.tourGuideService = tourGuideService;
 
 		executorService.submit(this);
