@@ -13,32 +13,30 @@ import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fr.asterox.UserManagement.bean.User;
 import fr.asterox.UserManagement.bean.UserPreferences;
 import fr.asterox.UserManagement.bean.UserReward;
-import fr.asterox.UserManagement.controller.RewardsCentralController;
+import fr.asterox.UserManagement.controller.LocationController;
 import fr.asterox.UserManagement.controller.dto.CurrentLocationDTO;
+import fr.asterox.UserManagement.controller.dto.LocationDTO;
+import fr.asterox.UserManagement.controller.dto.ProviderDTO;
+import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 import fr.asterox.UserManagement.helper.InternalTestHelper;
 import fr.asterox.UserManagement.tracker.Tracker;
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
-import tripPricer.Provider;
-import tripPricer.TripPricer;
 
 @Service
-public class UserManagementService {
+public class UserManagementService implements IUserManagementService {
+	@Autowired
+	LocationController locationController;
+
 	private Logger logger = LoggerFactory.getLogger(UserManagementService.class);
-	private final GpsUtil gpsUtil;
-	private RewardsCentralController rewardsCentralController;
-	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
 
-	public UserManagementService(GpsUtil gpsUtil) {
-		this.gpsUtil = gpsUtil;
+	public UserManagementService() {
 
 		if (testMode) {
 			logger.info("TestMode enabled");
@@ -50,63 +48,77 @@ public class UserManagementService {
 		addShutDownHook();
 	}
 
-	public User getUser(String userName) {
-		return internalUserMap.get(userName);
-	}
-
-	public UUID getUserId(String userName) {
-		return internalUserMap.get(userName).getUserId();
-	}
-
-	public UserPreferences getUserPreferences(String userName) {
-		return internalUserMap.get(userName).getUserPreferences();
-	}
-
-	public List<User> getAllUsers() {
-		return internalUserMap.values().stream().collect(Collectors.toList());
-	}
-
+	@Override
 	public void addUser(User user) {
+		logger.debug("adding new user");
 		if (!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);
 		}
 	}
 
+	@Override
+	public User getUser(String userName) {
+		logger.debug("getting user with following username :" + userName);
+		return internalUserMap.get(userName);
+	}
+
+	@Override
+	public UUID getUserId(String userName) {
+		logger.debug("getting userId for user :" + userName);
+		return internalUserMap.get(userName).getUserId();
+	}
+
+	@Override
+	public UserPreferences getUserPreferences(String userName) {
+		logger.debug("getting preferences of user :" + userName);
+		return internalUserMap.get(userName).getUserPreferences();
+	}
+
+	@Override
+	public List<User> getAllUsers() {
+		logger.debug("getting all users");
+		return internalUserMap.values().stream().collect(Collectors.toList());
+	}
+
+	@Override
 	public List<UserReward> getUserRewards(User user) {
+		logger.debug("getting list of rewards for user :" + user.getUserName());
 		return user.getUserRewards();
 	}
 
+	@Override
 	public void addUserReward(String userName, UserReward userReward) {
+		logger.debug("adding rewards to user :" + userName);
 		getUser(userName).addUserReward(userReward);
 	}
 
-	public VisitedLocation getUserLastLocation(User user) {
-		// TODO : Exception si getVisitedLocations.size =0
-		VisitedLocation visitedLocation = user.getLastVisitedLocation();
-		return visitedLocation;
+	@Override
+	public LocationDTO getUserLastLocation(User user) {
+		logger.debug("getting last location of user :" + user.getUserName());
+		return (user.getVisitedLocations() == null) ? locationController.trackLocation(user.getUserName())
+				: user.getLastVisitedLocation().location;
+
+		// .size() > 0
 	}
 
-	public VisitedLocation getUserLocation(User user) {
-		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
-				: trackUserLocation(user);
-		return visitedLocation;
-	}
-
-	public VisitedLocation trackUserLocation(User user) {
-		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-		user.addToVisitedLocations(visitedLocation);
-		rewardsCentralController.calculateRewards(user.getUserName());
-		return visitedLocation;
-	}
-
+	@Override
 	public List<CurrentLocationDTO> getAllCurrentLocations() {
+		logger.debug("getting last location of all users");
 		return this.getAllUsers().stream()
 				.map(u -> new CurrentLocationDTO(u.getUserId(), u.getLastVisitedLocation().location))
 				.collect(Collectors.toList());
 	}
 
-	public void setTripDeals(String userName, List<Provider> providers) {
+	@Override
+	public void setTripDeals(String userName, List<ProviderDTO> providers) {
+		logger.debug("setting trip deals for user :" + userName);
 		getUser(userName).setTripDeals(providers);
+	}
+
+	@Override
+	public void setPreferences(String userName, UserPreferences userPreferences) {
+		logger.debug("setting user preferences for user :" + userName);
+		getUser(userName).setUserPreferences(userPreferences);
 	}
 
 	private void addShutDownHook() {
@@ -123,7 +135,6 @@ public class UserManagementService {
 	 * Methods Below: For Internal Testing
 	 * 
 	 **********************************************************************************/
-	private static final String tripPricerApiKey = "test-server-api-key";
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory
 	private final Map<String, User> internalUserMap = new HashMap<>();
@@ -143,8 +154,8 @@ public class UserManagementService {
 
 	private void generateUserLocationHistory(User user) {
 		IntStream.range(0, 3).forEach(i -> {
-			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),
-					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
+			user.addToVisitedLocations(new VisitedLocationDTO(user.getUserId(),
+					new LocationDTO(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
 		});
 	}
 

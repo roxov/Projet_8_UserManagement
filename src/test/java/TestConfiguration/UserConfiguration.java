@@ -9,16 +9,16 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 
 import fr.asterox.UserManagement.bean.User;
-import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
+import fr.asterox.UserManagement.controller.dto.LocationDTO;
+import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 
 @Service
 public class UserConfiguration {
 
 	public void generateUserLocationHistory(User user) {
 		IntStream.range(0, 3).forEach(i -> {
-			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),
-					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
+			user.addToVisitedLocations(new VisitedLocationDTO(user.getUserId(),
+					new LocationDTO(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
 		});
 	}
 

@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import gpsUtil.location.VisitedLocation;
-import tripPricer.Provider;
+import fr.asterox.UserManagement.controller.dto.ProviderDTO;
+import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 
 public class User {
 	private final UUID userId;
@@ -14,10 +14,10 @@ public class User {
 	private String phoneNumber;
 	private String emailAddress;
 	private Date latestLocationTimestamp;
-	private List<VisitedLocation> visitedLocations = new ArrayList<>();
+	private List<VisitedLocationDTO> visitedLocations = new ArrayList<>();
 	private List<UserReward> userRewards = new ArrayList<>();
 	private UserPreferences userPreferences = new UserPreferences();
-	private List<Provider> tripDeals = new ArrayList<>();
+	private List<ProviderDTO> tripDeals = new ArrayList<>();
 
 	public User(UUID userId, String userName, String phoneNumber, String emailAddress) {
 		this.userId = userId;
@@ -58,11 +58,11 @@ public class User {
 		return latestLocationTimestamp;
 	}
 
-	public void addToVisitedLocations(VisitedLocation visitedLocation) {
-		visitedLocations.add(visitedLocation);
+	public void addToVisitedLocations(VisitedLocationDTO visitedLocationDTO) {
+		visitedLocations.add(visitedLocationDTO);
 	}
 
-	public List<VisitedLocation> getVisitedLocations() {
+	public List<VisitedLocationDTO> getVisitedLocations() {
 		return visitedLocations;
 	}
 
@@ -88,15 +88,15 @@ public class User {
 		this.userPreferences = userPreferences;
 	}
 
-	public VisitedLocation getLastVisitedLocation() {
+	public VisitedLocationDTO getLastVisitedLocation() {
 		return visitedLocations.get(visitedLocations.size() - 1);
 	}
 
-	public void setTripDeals(List<Provider> tripDeals) {
+	public void setTripDeals(List<ProviderDTO> tripDeals) {
 		this.tripDeals = tripDeals;
 	}
 
-	public List<Provider> getTripDeals() {
+	public List<ProviderDTO> getTripDeals() {
 		return tripDeals;
 	}
 

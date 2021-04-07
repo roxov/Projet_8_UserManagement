@@ -1,20 +1,20 @@
-package fr.asterox.UserManagement.bean;
+package fr.asterox.UserManagement.controller.dto;
 
-public class UserPreferences {
+public class UserPreferencesDTO {
 
 	private int attractionProximity = Integer.MAX_VALUE;
-	private String currency = "USD";
-	private int lowerPricePoint = 0;
-	private int highPricePoint = Integer.MAX_VALUE;
+	private String currency;
+	private int lowerPricePoint;
+	private int highPricePoint;
 	private int tripDuration = 1;
 	private int ticketQuantity = 1;
 	private int numberOfAdults = 1;
 	private int numberOfChildren = 0;
 
-	public UserPreferences() {
+	public UserPreferencesDTO() {
 	}
 
-	public UserPreferences(int attractionProximity, String currency, int lowerPricePoint, int highPricePoint,
+	public UserPreferencesDTO(int attractionProximity, String currency, int lowerPricePoint, int highPricePoint,
 			int tripDuration, int ticketQuantity, int numberOfAdults, int numberOfChildren) {
 		super();
 		this.attractionProximity = attractionProximity;

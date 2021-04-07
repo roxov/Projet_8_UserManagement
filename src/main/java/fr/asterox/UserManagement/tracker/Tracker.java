@@ -8,19 +8,24 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import fr.asterox.UserManagement.bean.User;
+import fr.asterox.UserManagement.controller.LocationController;
 import fr.asterox.UserManagement.service.UserManagementService;
 
 public class Tracker extends Thread {
+	@Autowired
+	private LocationController locationController;
+
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private final UserManagementService tourGuideService;
+	private final UserManagementService userManagementService;
 	private boolean stop = false;
 
-	public Tracker(UserManagementService tourGuideService) {
-		this.tourGuideService = tourGuideService;
+	public Tracker(UserManagementService userManagementService) {
+		this.userManagementService = userManagementService;
 
 		executorService.submit(this);
 	}
@@ -42,10 +47,10 @@ public class Tracker extends Thread {
 				break;
 			}
 
-			List<User> users = tourGuideService.getAllUsers();
+			List<User> users = userManagementService.getAllUsers();
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
-			users.forEach(u -> tourGuideService.trackUserLocation(u));
+			users.forEach(u -> locationController.trackLocation(u.getUserName()));
 			stopWatch.stop();
 			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 			stopWatch.reset();
