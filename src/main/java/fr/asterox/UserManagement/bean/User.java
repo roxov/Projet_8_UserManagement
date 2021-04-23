@@ -13,7 +13,7 @@ public class User {
 	private final String userName;
 	private String phoneNumber;
 	private String emailAddress;
-	private Date latestLocationTimestamp;
+	private Date latestLocationTimestamp = null;
 	private List<VisitedLocationDTO> visitedLocations = new ArrayList<>();
 	private List<UserReward> userRewards = new ArrayList<>();
 	private UserPreferences userPreferences = new UserPreferences();
@@ -98,6 +98,79 @@ public class User {
 
 	public List<ProviderDTO> getTripDeals() {
 		return tripDeals;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
+		result = prime * result + ((latestLocationTimestamp == null) ? 0 : latestLocationTimestamp.hashCode());
+		result = prime * result + ((phoneNumber == null) ? 0 : phoneNumber.hashCode());
+		result = prime * result + ((tripDeals == null) ? 0 : tripDeals.hashCode());
+		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		result = prime * result + ((userPreferences == null) ? 0 : userPreferences.hashCode());
+		result = prime * result + ((userRewards == null) ? 0 : userRewards.hashCode());
+		result = prime * result + ((visitedLocations == null) ? 0 : visitedLocations.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (emailAddress == null) {
+			if (other.emailAddress != null)
+				return false;
+		} else if (!emailAddress.equals(other.emailAddress))
+			return false;
+		if (latestLocationTimestamp == null) {
+			if (other.latestLocationTimestamp != null)
+				return false;
+		} else if (!latestLocationTimestamp.equals(other.latestLocationTimestamp))
+			return false;
+		if (phoneNumber == null) {
+			if (other.phoneNumber != null)
+				return false;
+		} else if (!phoneNumber.equals(other.phoneNumber))
+			return false;
+		if (tripDeals == null) {
+			if (other.tripDeals != null)
+				return false;
+		} else if (!tripDeals.equals(other.tripDeals))
+			return false;
+		if (userId == null) {
+			if (other.userId != null)
+				return false;
+		} else if (!userId.equals(other.userId))
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		if (userPreferences == null) {
+			if (other.userPreferences != null)
+				return false;
+		} else if (!userPreferences.equals(other.userPreferences))
+			return false;
+		if (userRewards == null) {
+			if (other.userRewards != null)
+				return false;
+		} else if (!userRewards.equals(other.userRewards))
+			return false;
+		if (visitedLocations == null) {
+			if (other.visitedLocations != null)
+				return false;
+		} else if (!visitedLocations.equals(other.visitedLocations))
+			return false;
+		return true;
 	}
 
 }

@@ -91,4 +91,50 @@ public class UserPreferences {
 		this.numberOfChildren = numberOfChildren;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + attractionProximity;
+		result = prime * result + ((currency == null) ? 0 : currency.hashCode());
+		result = prime * result + highPricePoint;
+		result = prime * result + lowerPricePoint;
+		result = prime * result + numberOfAdults;
+		result = prime * result + numberOfChildren;
+		result = prime * result + ticketQuantity;
+		result = prime * result + tripDuration;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserPreferences other = (UserPreferences) obj;
+		if (attractionProximity != other.attractionProximity)
+			return false;
+		if (currency == null) {
+			if (other.currency != null)
+				return false;
+		} else if (!currency.equals(other.currency))
+			return false;
+		if (highPricePoint != other.highPricePoint)
+			return false;
+		if (lowerPricePoint != other.lowerPricePoint)
+			return false;
+		if (numberOfAdults != other.numberOfAdults)
+			return false;
+		if (numberOfChildren != other.numberOfChildren)
+			return false;
+		if (ticketQuantity != other.ticketQuantity)
+			return false;
+		if (tripDuration != other.tripDuration)
+			return false;
+		return true;
+	}
+
 }

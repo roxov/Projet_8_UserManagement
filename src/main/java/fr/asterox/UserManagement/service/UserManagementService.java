@@ -19,18 +19,18 @@ import org.springframework.stereotype.Service;
 import fr.asterox.UserManagement.bean.User;
 import fr.asterox.UserManagement.bean.UserPreferences;
 import fr.asterox.UserManagement.bean.UserReward;
-import fr.asterox.UserManagement.controller.LocationController;
 import fr.asterox.UserManagement.controller.dto.CurrentLocationDTO;
 import fr.asterox.UserManagement.controller.dto.LocationDTO;
 import fr.asterox.UserManagement.controller.dto.ProviderDTO;
 import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 import fr.asterox.UserManagement.helper.InternalTestHelper;
+import fr.asterox.UserManagement.proxy.LocationProxy;
 import fr.asterox.UserManagement.tracker.Tracker;
 
 @Service
 public class UserManagementService implements IUserManagementService {
 	@Autowired
-	LocationController locationController;
+	LocationProxy locationProxy;
 
 	private Logger logger = LoggerFactory.getLogger(UserManagementService.class);
 	public final Tracker tracker;
@@ -52,6 +52,7 @@ public class UserManagementService implements IUserManagementService {
 	public void addUser(User user) {
 		logger.debug("adding new user");
 		if (!internalUserMap.containsKey(user.getUserName())) {
+			logger.debug("creating user with following username :" + user.getUserName());
 			internalUserMap.put(user.getUserName(), user);
 		}
 	}
@@ -95,10 +96,8 @@ public class UserManagementService implements IUserManagementService {
 	@Override
 	public LocationDTO getUserLastLocation(User user) {
 		logger.debug("getting last location of user :" + user.getUserName());
-		return (user.getVisitedLocations() == null) ? locationController.trackLocation(user.getUserName())
+		return (user.getVisitedLocations().isEmpty()) ? locationProxy.trackLocation(user.getUserName())
 				: user.getLastVisitedLocation().location;
-
-		// .size() > 0
 	}
 
 	@Override
@@ -113,6 +112,11 @@ public class UserManagementService implements IUserManagementService {
 	public void setTripDeals(String userName, List<ProviderDTO> providers) {
 		logger.debug("setting trip deals for user :" + userName);
 		getUser(userName).setTripDeals(providers);
+	}
+
+	public void getTripDeals(String userName) {
+		logger.debug("getting trip deals for user :" + userName);
+		getUser(userName).getTripDeals();
 	}
 
 	@Override
@@ -130,6 +134,10 @@ public class UserManagementService implements IUserManagementService {
 		});
 	}
 
+	public LocationProxy setLocationProxy(LocationProxy locationProxy) {
+		return this.locationProxy = locationProxy;
+	}
+
 	/**********************************************************************************
 	 * 
 	 * Methods Below: For Internal Testing
@@ -137,14 +145,20 @@ public class UserManagementService implements IUserManagementService {
 	 **********************************************************************************/
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory
-	private final Map<String, User> internalUserMap = new HashMap<>();
+	public final Map<String, User> internalUserMap = new HashMap<>();
 
 	private void initializeInternalUsers() {
+		User testUser = new User(UUID.fromString("329e4bf3-ee62-4a67-b7d7-b0dc06989c6e"), "jo", "000",
+				"jo@tourGuide.com");
+		generateUserLocationHistory(testUser);
+		internalUserMap.put("jo", testUser);
+
 		IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -> {
 			String userName = "internalUser" + i;
 			String phone = "000";
 			String email = userName + "@tourGuide.com";
 			User user = new User(UUID.randomUUID(), userName, phone, email);
+
 			generateUserLocationHistory(user);
 
 			internalUserMap.put(userName, user);
@@ -152,7 +166,7 @@ public class UserManagementService implements IUserManagementService {
 		logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
 	}
 
-	private void generateUserLocationHistory(User user) {
+	public void generateUserLocationHistory(User user) {
 		IntStream.range(0, 3).forEach(i -> {
 			user.addToVisitedLocations(new VisitedLocationDTO(user.getUserId(),
 					new LocationDTO(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));

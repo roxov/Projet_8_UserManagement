@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import fr.asterox.UserManagement.bean.User;
-import fr.asterox.UserManagement.controller.LocationController;
+import fr.asterox.UserManagement.proxy.LocationProxy;
 import fr.asterox.UserManagement.service.UserManagementService;
 
 public class Tracker extends Thread {
 	@Autowired
-	private LocationController locationController;
+	private LocationProxy locationProxy;
 
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
@@ -50,7 +50,7 @@ public class Tracker extends Thread {
 			List<User> users = userManagementService.getAllUsers();
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
-			users.forEach(u -> locationController.trackLocation(u.getUserName()));
+			users.forEach(u -> locationProxy.trackLocation(u.getUserName()));
 			stopWatch.stop();
 			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 			stopWatch.reset();

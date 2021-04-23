@@ -1,21 +1,25 @@
 package fr.asterox.UserManagement.bean;
 
-import gpsUtil.location.Attraction;
-import gpsUtil.location.VisitedLocation;
+import fr.asterox.UserManagement.controller.dto.AttractionDTO;
+import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 
 public class UserReward {
 
-	public final VisitedLocation visitedLocation;
-	public final Attraction attraction;
+	public VisitedLocationDTO visitedLocation;
+	public AttractionDTO attraction;
 	private int rewardPoints;
 
-	public UserReward(VisitedLocation visitedLocation, Attraction attraction, int rewardPoints) {
+	public UserReward() {
+		super();
+	}
+
+	public UserReward(VisitedLocationDTO visitedLocation, AttractionDTO attraction, int rewardPoints) {
 		this.visitedLocation = visitedLocation;
 		this.attraction = attraction;
 		this.rewardPoints = rewardPoints;
 	}
 
-	public UserReward(VisitedLocation visitedLocation, Attraction attraction) {
+	public UserReward(VisitedLocationDTO visitedLocation, AttractionDTO attraction) {
 		this.visitedLocation = visitedLocation;
 		this.attraction = attraction;
 	}
@@ -26,6 +30,22 @@ public class UserReward {
 
 	public int getRewardPoints() {
 		return rewardPoints;
+	}
+
+	public VisitedLocationDTO getVisitedLocation() {
+		return visitedLocation;
+	}
+
+	public void setVisitedLocation(VisitedLocationDTO visitedLocation) {
+		this.visitedLocation = visitedLocation;
+	}
+
+	public void setAttraction(AttractionDTO attraction) {
+		this.attraction = attraction;
+	}
+
+	public AttractionDTO getAttraction() {
+		return attraction;
 	}
 
 }
