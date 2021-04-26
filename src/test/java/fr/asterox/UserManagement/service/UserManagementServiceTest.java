@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -131,7 +132,7 @@ public class UserManagementServiceTest {
 	@Test
 	public void givenAUserWithLocationHistory_whenGetUserLastLocation_thenReturnLastLocationOfTheUser() {
 		// WHEN
-		userManagementService.getUserLastLocation(userManagementService.getUser("jo"));
+		userManagementService.getUserLastLocation("jo");
 
 		// THEN
 		verify(locationProxy, Mockito.times(0)).trackLocation(anyString());
@@ -142,15 +143,15 @@ public class UserManagementServiceTest {
 		// GIVEN
 		User user2 = new User(UUID.randomUUID(), "josette", "000", "josette@tourGuide.com");
 		userManagementService.addUser(user2);
-		when(locationProxy.trackLocation("josette")).thenReturn(new LocationDTO(144, 155));
+		when(locationProxy.trackLocation("josette")).thenReturn("calculation on process");
 		userManagementService.setLocationProxy(locationProxy);
 
 		// WHEN
-		LocationDTO location = userManagementService.getUserLastLocation(user2);
+		Optional<LocationDTO> result = userManagementService.getUserLastLocation("josette");
 
 		// THEN
 		verify(locationProxy, Mockito.times(1)).trackLocation(anyString());
-		assertEquals(144, location.latitude);
+		assertEquals(result, Optional.empty());
 	}
 
 	@Test

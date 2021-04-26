@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -94,17 +95,22 @@ public class UserManagementService implements IUserManagementService {
 	}
 
 	@Override
-	public LocationDTO getUserLastLocation(User user) {
-		logger.debug("getting last location of user :" + user.getUserName());
-		return (user.getVisitedLocations().isEmpty()) ? locationProxy.trackLocation(user.getUserName())
-				: user.getLastVisitedLocation().location;
+	public Optional<LocationDTO> getUserLastLocation(String username) {
+		logger.debug("getting last location of user :" + username);
+		if (getUser(username).getVisitedLocations().isEmpty()) {
+			logger.info("the calculation of last location is on process for user :" + username);
+			locationProxy.trackLocation(username);
+			return Optional.empty();
+		}
+		return getUser(username).getLastVisitedLocation().map(VisitedLocationDTO::getLocation);
 	}
 
 	@Override
 	public List<CurrentLocationDTO> getAllCurrentLocations() {
 		logger.debug("getting last location of all users");
 		return this.getAllUsers().stream()
-				.map(u -> new CurrentLocationDTO(u.getUserId(), u.getLastVisitedLocation().location))
+				.map(u -> new CurrentLocationDTO(u.getUserId(),
+						u.getLastVisitedLocation().map(VisitedLocationDTO::getLocation).orElse(null)))
 				.collect(Collectors.toList());
 	}
 
@@ -114,9 +120,9 @@ public class UserManagementService implements IUserManagementService {
 		getUser(userName).setTripDeals(providers);
 	}
 
-	public void getTripDeals(String userName) {
+	public List<ProviderDTO> getTripDeals(String userName) {
 		logger.debug("getting trip deals for user :" + userName);
-		getUser(userName).getTripDeals();
+		return getUser(userName).getTripDeals();
 	}
 
 	@Override
@@ -148,6 +154,7 @@ public class UserManagementService implements IUserManagementService {
 	public final Map<String, User> internalUserMap = new HashMap<>();
 
 	private void initializeInternalUsers() {
+
 		User testUser = new User(UUID.fromString("329e4bf3-ee62-4a67-b7d7-b0dc06989c6e"), "jo", "000",
 				"jo@tourGuide.com");
 		generateUserLocationHistory(testUser);
@@ -164,6 +171,11 @@ public class UserManagementService implements IUserManagementService {
 			internalUserMap.put(userName, user);
 		});
 		logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
+	}
+
+	public void clearMap() {
+		internalUserMap.clear();
+		initializeInternalUsers();
 	}
 
 	public void generateUserLocationHistory(User user) {

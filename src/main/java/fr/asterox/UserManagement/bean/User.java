@@ -3,6 +3,7 @@ package fr.asterox.UserManagement.bean;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import fr.asterox.UserManagement.controller.dto.ProviderDTO;
@@ -88,8 +89,11 @@ public class User {
 		this.userPreferences = userPreferences;
 	}
 
-	public VisitedLocationDTO getLastVisitedLocation() {
-		return visitedLocations.get(visitedLocations.size() - 1);
+	public Optional<VisitedLocationDTO> getLastVisitedLocation() {
+		if (visitedLocations.isEmpty()) {
+			return Optional.empty();
+		}
+		return Optional.of(visitedLocations.get(visitedLocations.size() - 1));
 	}
 
 	public void setTripDeals(List<ProviderDTO> tripDeals) {

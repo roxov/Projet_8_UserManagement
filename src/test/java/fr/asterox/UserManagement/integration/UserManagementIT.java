@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.asterox.UserManagement.bean.User;
 import fr.asterox.UserManagement.bean.UserPreferences;
 import fr.asterox.UserManagement.bean.UserReward;
 import fr.asterox.UserManagement.controller.dto.AttractionDTO;
 import fr.asterox.UserManagement.controller.dto.LocationDTO;
 import fr.asterox.UserManagement.controller.dto.ProviderDTO;
 import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
+import fr.asterox.UserManagement.service.UserManagementService;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -41,17 +44,25 @@ public class UserManagementIT {
 	@Autowired
 	private ObjectMapper objectMapper;
 
-//	@Test
-//	void givenAUser_whenAddUser_thenReturns200AndPut() throws Exception {
-//		User user2 = new User(UUID.fromString("444e4bf3-ee62-4a67-b7d7-b0dc06989c6e"), "josette", "111",
-//				"josette@tourGuide.com");
-//		mockMvc.perform(
-//				put("/addUser").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(user2)))
-//				.andExpect(status().isOk());
-//		mockMvc.perform(MockMvcRequestBuilders.get("/getUser?userName={userName}", "josette")
-//				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
-//				.andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value(111));
-//	}
+	@Autowired
+	private UserManagementService userManagementService;
+
+	@BeforeEach
+	public void setUp() {
+		userManagementService.clearMap();
+	}
+
+	@Test
+	void givenAUser_whenAddUser_thenReturns200AndPut() throws Exception {
+		User user2 = new User(UUID.fromString("444e4bf3-ee62-4a67-b7d7-b0dc06989c6e"), "josette", "111",
+				"josette@tourGuide.com");
+		mockMvc.perform(
+				put("/addUser").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(user2)))
+				.andExpect(status().isOk());
+		mockMvc.perform(MockMvcRequestBuilders.get("/getUser?userName={userName}", "josette")
+				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value(111));
+	}
 
 	@Test
 	public void givenAUsername_whenGetUser_thenReturnOkAndUser() throws Exception {
@@ -93,8 +104,7 @@ public class UserManagementIT {
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/getVisitedLocations?userName={userName}", "jo")
 				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
-				.andExpect(jsonPath("$[?(@.latitude === '144')]").exists());
-		// TODO.
+				.andExpect(jsonPath("$.[3].location.latitude").value(144));
 	}
 
 	@Test
@@ -106,9 +116,9 @@ public class UserManagementIT {
 		mockMvc.perform(MockMvcRequestBuilders.put("/addReward?userName={userName}", "internalUser0")
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(userReward)))
 				.andExpect(status().isOk());
-//		mockMvc.perform(MockMvcRequestBuilders.get("/getUserRewards?userName={userName}", "internalUser0")
-//				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
-//				.andExpect(MockMvcResultMatchers.jsonPath("$.[1].rewardPoints").value(12));
+		mockMvc.perform(MockMvcRequestBuilders.get("/getUserRewards?userName={userName}", "internalUser0")
+				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.[0].rewardPoints").value(12));
 	}
 
 	@Test
@@ -124,13 +134,13 @@ public class UserManagementIT {
 				200);
 		providers.add(provider);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/setTripDeals?userName={userName}", "internalUser0")
+		mockMvc.perform(MockMvcRequestBuilders.post("/setTripDeals?userName={userName}", "jo")
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(providers)))
 				.andExpect(status().isOk());
 
-//		mockMvc.perform(MockMvcRequestBuilders.get("/getTripDeals?userName={userName}", "internalUser0")
-//				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
-//				.andExpect(MockMvcResultMatchers.jsonPath("$.[0].name").value("providerName"));
+		mockMvc.perform(MockMvcRequestBuilders.get("/getTripDeals?userName={userName}", "jo")
+				.accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.[0].name").value("providerName"));
 	}
 
 	@Test

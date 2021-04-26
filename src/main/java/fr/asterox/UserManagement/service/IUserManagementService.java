@@ -1,6 +1,7 @@
 package fr.asterox.UserManagement.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import fr.asterox.UserManagement.bean.User;
@@ -30,7 +31,7 @@ public interface IUserManagementService {
 
 	public void addUserReward(String userName, UserReward userReward);
 
-	public LocationDTO getUserLastLocation(User user);
+	public Optional<LocationDTO> getUserLastLocation(String username);
 
 	public List<CurrentLocationDTO> getAllCurrentLocations();
 
