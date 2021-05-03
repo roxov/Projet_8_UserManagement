@@ -148,7 +148,7 @@ public class UserManagementIT {
 			throws Exception {
 		UserPreferences userPreferences = new UserPreferences(150, "EURO", 0, 250, 3, 4, 2, 2);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/setUserPreferences?userName={userName}", "internalUser0")
+		mockMvc.perform(MockMvcRequestBuilders.put("/setUserPreferences?userName={userName}", "internalUser0")
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(userPreferences)))
 				.andExpect(status().isOk());
 

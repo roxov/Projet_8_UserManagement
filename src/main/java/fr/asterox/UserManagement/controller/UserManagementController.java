@@ -112,7 +112,7 @@ public class UserManagementController {
 		return userManagementService.getTripDeals(userName);
 	}
 
-	@PostMapping("/setUserPreferences")
+	@PutMapping("/setUserPreferences")
 	public void setUserPreferences(@RequestParam @NotNull(message = "username is compulsory") String userName,
 			@RequestBody UserPreferences userPreferences) {
 		logger.debug("setting user preferences of user :" + userName);

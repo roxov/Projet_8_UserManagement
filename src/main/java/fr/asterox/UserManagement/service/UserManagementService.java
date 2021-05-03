@@ -27,6 +27,7 @@ import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 import fr.asterox.UserManagement.helper.InternalTestHelper;
 import fr.asterox.UserManagement.proxy.LocationProxy;
 import fr.asterox.UserManagement.tracker.Tracker;
+import fr.asterox.UserManagement.util.NoUserException;
 
 @Service
 public class UserManagementService implements IUserManagementService {
@@ -51,6 +52,11 @@ public class UserManagementService implements IUserManagementService {
 
 	@Override
 	public void addUser(User user) {
+		if (this.getAllUsers().stream().map(u -> u.getUserName()).collect(Collectors.toList())
+				.contains(user.getUserName())) {
+			throw new RuntimeException("This username already exists.");
+		}
+
 		logger.debug("adding new user");
 		if (!internalUserMap.containsKey(user.getUserName())) {
 			logger.debug("creating user with following username :" + user.getUserName());
@@ -60,6 +66,10 @@ public class UserManagementService implements IUserManagementService {
 
 	@Override
 	public User getUser(String userName) {
+		if (!internalUserMap.containsKey(userName)) {
+			logger.info("The requested user does not exist.");
+			throw new NoUserException("This user does not exist.");
+		}
 		logger.debug("getting user with following username :" + userName);
 		return internalUserMap.get(userName);
 	}

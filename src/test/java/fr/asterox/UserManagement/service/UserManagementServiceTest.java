@@ -1,6 +1,7 @@
 package fr.asterox.UserManagement.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -31,6 +32,7 @@ import fr.asterox.UserManagement.controller.dto.ProviderDTO;
 import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 import fr.asterox.UserManagement.helper.InternalTestHelper;
 import fr.asterox.UserManagement.proxy.LocationProxy;
+import fr.asterox.UserManagement.util.NoUserException;
 
 /**
  * 
@@ -71,12 +73,35 @@ public class UserManagementServiceTest {
 	}
 
 	@Test
+	public void givenAExistingUsername_whenAddUser_thenThrowRuntimeException() {
+		// GIVEN
+		User user2 = new User(UUID.randomUUID(), "jo", "000", "jo@tourGuide.com");
+
+		// WHEN
+		Exception exception = assertThrows(RuntimeException.class, () -> {
+			userManagementService.addUser(user2);
+		});
+		assertEquals(exception.getMessage(), "This username already exists.");
+	}
+
+	@Test
 	public void givenAUser_whenGetUser_thenReturnTheUser() {
 		// WHEN
 		User result = userManagementService.getUser("jo");
 
 		// THEN
 		assertEquals(result.getEmailAddress(), "jo@tourGuide.com");
+	}
+
+	@Test
+	public void givenAnNonexistentUsername_whenGetUser_thenThrowException() {
+		// WHEN
+		Exception exception = assertThrows(NoUserException.class, () -> {
+			userManagementService.getUser("joe");
+		});
+
+		// THEN
+		assertEquals(exception.getMessage(), "This user does not exist.");
 	}
 
 	@Test

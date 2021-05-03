@@ -1,7 +1,6 @@
 package fr.asterox.UserManagement.bean;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,11 +9,31 @@ import fr.asterox.UserManagement.controller.dto.ProviderDTO;
 import fr.asterox.UserManagement.controller.dto.VisitedLocationDTO;
 
 public class User {
-	private final UUID userId;
-	private final String userName;
+	private UUID userId;
+
+	public User() {
+		super();
+	}
+
+	public void setUserId(UUID userId) {
+		this.userId = userId;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public void setVisitedLocations(List<VisitedLocationDTO> visitedLocations) {
+		this.visitedLocations = visitedLocations;
+	}
+
+	public void setUserRewards(List<UserReward> userRewards) {
+		this.userRewards = userRewards;
+	}
+
+	private String userName;
 	private String phoneNumber;
 	private String emailAddress;
-	private Date latestLocationTimestamp = null;
 	private List<VisitedLocationDTO> visitedLocations = new ArrayList<>();
 	private List<UserReward> userRewards = new ArrayList<>();
 	private UserPreferences userPreferences = new UserPreferences();
@@ -25,6 +44,20 @@ public class User {
 		this.userName = userName;
 		this.phoneNumber = phoneNumber;
 		this.emailAddress = emailAddress;
+	}
+
+	public User(UUID userId, String userName, String phoneNumber, String emailAddress,
+			List<VisitedLocationDTO> visitedLocations, List<UserReward> userRewards, UserPreferences userPreferences,
+			List<ProviderDTO> tripDeals) {
+		super();
+		this.userId = userId;
+		this.userName = userName;
+		this.phoneNumber = phoneNumber;
+		this.emailAddress = emailAddress;
+		this.visitedLocations = visitedLocations;
+		this.userRewards = userRewards;
+		this.userPreferences = userPreferences;
+		this.tripDeals = tripDeals;
 	}
 
 	public UUID getUserId() {
@@ -51,14 +84,6 @@ public class User {
 		return emailAddress;
 	}
 
-	public void setLatestLocationTimestamp(Date latestLocationTimestamp) {
-		this.latestLocationTimestamp = latestLocationTimestamp;
-	}
-
-	public Date getLatestLocationTimestamp() {
-		return latestLocationTimestamp;
-	}
-
 	public void addToVisitedLocations(VisitedLocationDTO visitedLocationDTO) {
 		visitedLocations.add(visitedLocationDTO);
 	}
@@ -72,7 +97,8 @@ public class User {
 	}
 
 	public void addUserReward(UserReward userReward) {
-		if (userRewards.stream().filter(r -> !r.attraction.attractionName.equals(userReward.attraction)).count() == 0) {
+		if (userRewards.stream().filter(r -> !r.attraction.attractionName.equals(userReward.attraction.attractionName))
+				.count() == 0) {
 			userRewards.add(userReward);
 		}
 	}
@@ -109,7 +135,6 @@ public class User {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
-		result = prime * result + ((latestLocationTimestamp == null) ? 0 : latestLocationTimestamp.hashCode());
 		result = prime * result + ((phoneNumber == null) ? 0 : phoneNumber.hashCode());
 		result = prime * result + ((tripDeals == null) ? 0 : tripDeals.hashCode());
 		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
@@ -133,11 +158,6 @@ public class User {
 			if (other.emailAddress != null)
 				return false;
 		} else if (!emailAddress.equals(other.emailAddress))
-			return false;
-		if (latestLocationTimestamp == null) {
-			if (other.latestLocationTimestamp != null)
-				return false;
-		} else if (!latestLocationTimestamp.equals(other.latestLocationTimestamp))
 			return false;
 		if (phoneNumber == null) {
 			if (other.phoneNumber != null)

@@ -5,10 +5,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StopWatch;
 
 import fr.asterox.UserManagement.bean.User;
 import fr.asterox.UserManagement.proxy.LocationProxy;
@@ -52,8 +52,7 @@ public class Tracker extends Thread {
 			stopWatch.start();
 			users.forEach(u -> locationProxy.trackLocation(u.getUserName()));
 			stopWatch.stop();
-			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
-			stopWatch.reset();
+
 			try {
 				logger.debug("Tracker sleeping");
 				TimeUnit.SECONDS.sleep(trackingPollingInterval);
